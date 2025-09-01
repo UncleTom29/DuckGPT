@@ -7,15 +7,15 @@ A decentralized marketplace of AI Skills (plugins) callable by agents/dApps. Eac
 
 ```
 duckgpt/
-├── contracts/                    # Smart contracts (Solidity)
-│   ├── src/
+├── duckgpt-contracts/                    # Smart contracts (Solidity)
+│   ├── contracts/
 │   │   ├── PluginRegistry.sol
 │   │   ├── UsageMeter.sol
 │   │   ├── OracleBridge.sol
 │   │   └── DuckToken.sol
 │   ├── test/
 │   ├── deploy/
-│   └── hardhat.config.js
+│   └── hardhat.config.ts
 │
 ├── gateway/                      # AWS Gateway & Core Infrastructure
 │   ├── src/
