@@ -1,0 +1,36 @@
+{
+  "name": "duckgpt-gateway",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/gateway.js",
+  "scripts": {
+    "deploy": "serverless deploy",
+    "deploy:dev": "serverless deploy --stage dev",
+    "deploy:prod": "serverless deploy --stage prod",
+    "remove": "serverless remove",
+    "offline": "serverless offline",
+    "logs": "serverless logs -f gateway -t",
+    "test": "jest",
+    "lint": "eslint src/"
+  },
+  "keywords": [
+    "blockchain",
+    "ai",
+    "ethereum",
+    "lambda",
+    "api-gateway"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "aws-sdk": "^2.1692.0",
+    "ethers": "^6.15.0"
+  },
+  "devDependencies": {
+    "eslint": "^9.34.0",
+    "jest": "^29.7.0",
+    "serverless": "^4.18.2",
+    "serverless-offline": "^14.4.0"
+  }
+}

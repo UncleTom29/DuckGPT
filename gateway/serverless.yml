@@ -1,0 +1,146 @@
+# gateway/serverless.yml
+service: duckgpt-gateway
+
+# frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  stage: ${opt:stage, 'dev'}
+  timeout: 30
+  memorySize: 512
+  
+  environment:
+    STAGE: ${self:provider.stage}
+    DUCK_TOKEN_ADDRESS: ${env:DUCK_TOKEN_ADDRESS}
+    PLUGIN_REGISTRY_ADDRESS: ${env:PLUGIN_REGISTRY_ADDRESS}
+    USAGE_METER_ADDRESS: ${env:USAGE_METER_ADDRESS}
+    RPC_URL: ${env:RPC_URL}
+    VERIFIER_PRIVATE_KEY: ${env:VERIFIER_PRIVATE_KEY}
+    DYNAMODB_TABLE: ${self:service}-${self:provider.stage}-calls
+    S3_BUCKET: ${self:service}-${self:provider.stage}-storage
+  
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:PutItem
+            - dynamodb:GetItem
+            - dynamodb:UpdateItem
+            - dynamodb:Query
+          Resource: 
+            - arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}
+            - arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}-*
+        - Effect: Allow
+          Action:
+            - s3:PutObject
+            - s3:GetObject
+            - s3:PutObjectAcl
+          Resource: arn:aws:s3:::${self:provider.environment.S3_BUCKET}/*
+        - Effect: Allow
+          Action:
+            - lambda:InvokeFunction
+          Resource: arn:aws:lambda:${self:provider.region}:*:function:duckgpt-*
+        - Effect: Allow
+          Action:
+            - cloudwatch:PutMetricData
+          Resource: "*"
+        - Effect: Allow
+          Action:
+            - kms:Decrypt
+          Resource: arn:aws:kms:${self:provider.region}:*:key/*
+
+functions:
+  gateway:
+    handler: src/gateway.handler
+    events:
+      - http:
+          path: /api/v1/plugins/{pluginId}/call
+          method: post
+          cors: true
+      - http:
+          path: /api/v1/plugins/{pluginId}/call
+          method: options
+          cors: true
+      - http:
+          path: /api/v1/plugins
+          method: get
+          cors: true
+
+resources:
+  Resources:
+    # DynamoDB table for call logs
+    CallsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: pluginId
+            AttributeType: N
+          - AttributeName: timestamp
+            AttributeType: N
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: plugin-timestamp-index
+            KeySchema:
+              - AttributeName: pluginId
+                KeyType: HASH
+              - AttributeName: timestamp
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+        TimeToLiveSpecification:
+          AttributeName: ttl
+          Enabled: true
+    
+    # Rate limiting table
+    RateLimitTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}-ratelimit
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        TimeToLiveSpecification:
+          AttributeName: ttl
+          Enabled: true
+    
+    # S3 bucket for file storage
+    StorageBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.environment.S3_BUCKET}
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: false
+          BlockPublicPolicy: false
+          IgnorePublicAcls: false
+          RestrictPublicBuckets: false
+        CorsConfiguration:
+          CorsRules:
+            - AllowedHeaders:
+                - "*"
+              AllowedMethods:
+                - GET
+                - PUT
+                - POST
+              AllowedOrigins:
+                - "*"
+              MaxAge: 3000
+
+plugins:
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    httpPort: 3000
