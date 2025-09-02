@@ -1,0 +1,31 @@
+{
+  "name": "duckgpt-telegram-bot",
+  "version": "1.0.0",
+  "description": "Telegram bot for DuckGPT on-chain AI plugin marketplace",
+  "main": "src/bot.js",
+  "scripts": {
+    "start": "node src/bot.js",
+    "dev": "nodemon src/bot.js",
+    "test": "jest",
+    "lint": "eslint src/"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.1",
+    "duckgpt-sdk": "^1.1.0",
+    "ethers": "^6.15.0",
+    "node-telegram-bot-api": "^0.66.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  },
+  "author": "DuckGPT Team",
+  "license": "MIT",
+  "keywords": [
+    "telegram",
+    "bot",
+    "duckgpt", 
+    "ai",
+    "blockchain",
+    "defi"
+  ]
+}

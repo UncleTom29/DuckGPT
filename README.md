@@ -157,7 +157,7 @@ duckgpt/
 ├── gateway/           # API Gateway Lambda
 ├── plugins/           # Plugin implementations
 ├── sdk/              # Client SDKs
-├── demo/             # Demo applications
+├── bot/             # Telegram Bot Usage Demo
 ├── docs/             # Documentation
 ├── scripts/          # Deployment scripts
 └── tests/            # Integration tests
