@@ -1,0 +1,58 @@
+# plugins/meme-generator/serverless.yml  
+service: duckgpt-meme-generator
+
+# frameworkVersion: '4'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  stage: ${opt:stage, 'dev'}
+  timeout: 60
+  memorySize: 2048  # Higher memory for image processing
+  
+  environment:
+    STAGE: ${self:provider.stage}
+    S3_BUCKET: duckgpt-gateway-${self:provider.stage}-storage
+  
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - bedrock:InvokeModel
+          Resource: 
+            - arn:aws:bedrock:*::foundation-model/anthropic.claude-3-haiku-20240307-v1:0
+        - Effect: Allow
+          Action:
+            - s3:PutObject
+            - s3:GetObject
+            - s3:PutObjectAcl
+          Resource: arn:aws:s3:::${self:provider.environment.S3_BUCKET}/*
+
+functions:
+  handler:
+    handler: src/handler.handler
+    name: duckgpt-meme-generator-${self:provider.stage}
+    layers:
+      - arn:aws:lambda:us-east-1:764866452798:layer:chrome-aws-lambda:31
+
+plugins:
+  - serverless-offline
+# Add this to the end of each serverless.yml file
+
+resources:
+  Outputs:
+    HandlerLambdaFunctionArn:
+      Description: "Lambda Function ARN"
+      Value:
+        Fn::GetAtt: [HandlerLambdaFunction, Arn]
+      Export:
+        Name: ${self:service}-${self:provider.stage}-handler-arn
+    
+    HandlerLambdaFunctionName:
+      Description: "Lambda Function Name"
+      Value:
+        Ref: HandlerLambdaFunction
+      Export:
+        Name: ${self:service}-${self:provider.stage}-handler-name

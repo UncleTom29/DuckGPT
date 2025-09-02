@@ -1,0 +1,51 @@
+# plugins/nft-appraiser/serverless.yml
+service: duckgpt-nft-appraiser
+
+frameworkVersion: '4'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  stage: ${opt:stage, 'dev'}
+  timeout: 90  # Longer timeout for multiple API calls
+  memorySize: 1024
+  
+  environment:
+    STAGE: ${self:provider.stage}
+    OPENSEA_API_KEY: ${env:OPENSEA_API_KEY}
+  
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - bedrock:InvokeModel
+          Resource: 
+            - arn:aws:bedrock:*::foundation-model/anthropic.claude-3-sonnet-20240229-v1:0
+
+functions:
+  handler:
+    handler: src/handler.handler
+    name: duckgpt-nft-appraiser-${self:provider.stage}
+
+plugins:
+  - serverless-offline
+
+# Add this to the end of each serverless.yml file
+
+resources:
+  Outputs:
+    HandlerLambdaFunctionArn:
+      Description: "Lambda Function ARN"
+      Value:
+        Fn::GetAtt: [HandlerLambdaFunction, Arn]
+      Export:
+        Name: ${self:service}-${self:provider.stage}-handler-arn
+    
+    HandlerLambdaFunctionName:
+      Description: "Lambda Function Name"
+      Value:
+        Ref: HandlerLambdaFunction
+      Export:
+        Name: ${self:service}-${self:provider.stage}-handler-name
