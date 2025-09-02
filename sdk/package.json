@@ -1,0 +1,70 @@
+{
+  "name": "duckgpt-sdk",
+  "version": "1.1.0",
+  "description": "JavaScript SDK for DuckGPT - A blockchain-based AI plugin ecosystem",
+  "main": "index.js",
+  "types": "types/index.d.ts",
+  "files": [
+    "lib/",
+    "index.js",
+    "types/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "jest",
+    "build": "npm run clean && npm run compile",
+    "clean": "rm -rf dist/",
+    "compile": "echo 'No compilation needed for this package'",
+    "example:basic": "node examples/basic-usage.js",
+    "example:advanced": "node examples/advanced-usage.js",
+    "lint": "eslint lib/ index.js",
+    "format": "prettier --write lib/ index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/uncletom29/duckgpt/sdk.git"
+  },
+  "keywords": [
+    "blockchain",
+    "ethereum",
+    "ai",
+    "plugins",
+    "sdk",
+    "duckgpt",
+    "web3",
+    "smart-contracts"
+  ],
+  "author": {
+    "name": "Tomiwa Adeyemi",
+    "email": "adeyemitomiwa7@gmail.com",
+    "url": "https://github.com/uncletom29"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/uncletom29/duckgpt/sdk/issues"
+  },
+  "homepage": "https://github.com/uncletom29/duckgpt/sdk#readme",
+  "dependencies": {
+    "axios": "^1.11.0",
+    "dotenv": "^17.2.1",
+    "ethers": "^6.15.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "eslint": "^8.50.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.0.0"
+  },
+  "peerDependencies": {
+    "dotenv": "^16.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=7.0.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}
